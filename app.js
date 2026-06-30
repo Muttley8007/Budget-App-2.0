@@ -1,4 +1,4 @@
-const K = 'pay-budget-lite-v1';
+const K = 'pay-budget-lite-v2-beta';
 
 let data = JSON.parse(localStorage.getItem(K) || '{"pays":[],"templates":[]}');
 
