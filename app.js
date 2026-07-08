@@ -1,4 +1,4 @@
-const K = 'pay-budget-lite-v2-beta';
+const K = 'pay-budget-lite-v1';
 
 let data = JSON.parse(localStorage.getItem(K) || '{"pays":[],"templates":[]}');
 
@@ -647,14 +647,57 @@ function billDateLabel(d){
   return new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
 }
 
-function renderBillSection(title, type){
-  const bills = (data.bills || []).filter(b => b.type === type).slice().sort((a,b) => {
-    if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
-    if (a.dueDate) return -1;
-    if (b.dueDate) return 1;
-    return String(a.name).localeCompare(String(b.name));
+function billPeriodKey(bill){
+  if (!bill.dueDate) return 'No date';
+
+  const d = new Date(bill.dueDate + 'T00:00:00');
+
+  if (bill.type === 'Annual'){
+    return String(d.getFullYear());
+  }
+
+  return bill.dueDate.slice(0, 7);
+}
+
+function billPeriodTitle(key, type){
+  if (key === 'No date') return 'No due date';
+
+  if (type === 'Annual'){
+    return `${key} Annual Bills`;
+  }
+
+  const [year, month] = key.split('-');
+  return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString('en-AU', {
+    month: 'long',
+    year: 'numeric'
   });
+}
+
+function renderBillSection(title, type){
+  const bills = (data.bills || [])
+    .filter(b => b.type === type)
+    .slice()
+    .sort((a,b) => {
+      if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+      if (a.dueDate) return -1;
+      if (b.dueDate) return 1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+
   const total = bills.reduce((s,b) => s + Number(b.amount || 0), 0);
+
+  const groups = {};
+  bills.forEach(b => {
+    const key = billPeriodKey(b);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(b);
+  });
+
+  const periodKeys = Object.keys(groups).sort((a,b) => {
+    if (a === 'No date') return 1;
+    if (b === 'No date') return -1;
+    return a.localeCompare(b);
+  });
 
   return `
     <div class="bill-card">
@@ -664,26 +707,47 @@ function renderBillSection(title, type){
           <div class="bill-card-summary">${bills.length} bills • ${money(total)}</div>
         </div>
       </div>
-      <div class="bill-list">
-        ${bills.length ? bills.map(b => `
-          <div class="bill-row">
-            <div style="min-width:0;">
-              <div class="bill-name">${escapeHtml(b.name)}</div>
-              <div class="bill-meta">
-                Due: ${billDateLabel(b.dueDate)}<br>
-                ${b.recurring ? 'Recurring' : 'One-off'}
+
+      ${periodKeys.length ? `
+        <div class="bill-period-grid">
+          ${periodKeys.map(key => {
+            const periodBills = groups[key];
+            const periodTotal = periodBills.reduce((s,b) => s + Number(b.amount || 0), 0);
+
+            return `
+              <div class="bill-period-card">
+                <div class="bill-period-header">
+                  <div>
+                    <h4 class="bill-period-title">${billPeriodTitle(key, type)}</h4>
+                    <div class="bill-period-summary">${periodBills.length} bills • ${money(periodTotal)}</div>
+                  </div>
+                </div>
+
+                <div class="bill-list">
+                  ${periodBills.map(b => `
+                    <div class="bill-row">
+                      <div style="min-width:0;">
+                        <div class="bill-name">${escapeHtml(b.name)}</div>
+                        <div class="bill-meta">
+                          Due: ${billDateLabel(b.dueDate)}<br>
+                          ${b.recurring ? 'Recurring' : 'One-off'}
+                        </div>
+                      </div>
+                      <div class="bill-right">
+                        <div class="bill-amount">${money(b.amount)}</div>
+                        <div class="bill-actions">
+                          <button class="btn btn-secondary tick" title="Edit" onclick="editBill('${b.id}')">✏</button>
+                          <button class="btn btn-danger tick" title="Delete" onclick="deleteBill('${b.id}')">X</button>
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
               </div>
-            </div>
-            <div class="bill-right">
-              <div class="bill-amount">${money(b.amount)}</div>
-              <div class="bill-actions">
-                <button class="btn btn-secondary tick" title="Edit" onclick="editBill('${b.id}')">✏</button>
-                <button class="btn btn-danger tick" title="Delete" onclick="deleteBill('${b.id}')">X</button>
-              </div>
-            </div>
-          </div>
-        `).join('') : '<div class="empty-state">No bills yet</div>'}
-      </div>
+            `;
+          }).join('')}
+        </div>
+      ` : '<div class="empty-state">No bills yet</div>'}
     </div>
   `;
 }
@@ -902,7 +966,7 @@ function exportData() {
   const a = document.createElement('a');
   const date = new Date().toISOString().slice(0, 10);
   a.href = url;
-  a.download = `beta-payday-planner-budget-backup-${date}.json`;
+  a.download = `budget-backup-${date}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();

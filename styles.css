@@ -979,3 +979,37 @@ body{
 @media(max-width:640px){
   .bill-form-grid{grid-template-columns:1fr}
 }
+
+
+/* Bills grouped by period */
+.bill-period-grid{
+  display:grid;
+  gap:16px;
+}
+
+.bill-period-card{
+  border:1px solid rgba(210,210,210,0.22);
+  border-radius:22px;
+  background:#0b0f17;
+  padding:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,0.25);
+}
+
+.bill-period-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.bill-period-title{
+  margin:0;
+  font-size:20px;
+}
+
+.bill-period-summary{
+  color:#9fb0ce;
+  font-size:13px;
+  margin-top:4px;
+}
