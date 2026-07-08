@@ -966,7 +966,7 @@ function exportData() {
   const a = document.createElement('a');
   const date = new Date().toISOString().slice(0, 10);
   a.href = url;
-  a.download = `budget-backup-${date}.json`;
+  a.download = `beta-budget-backup-${date}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
