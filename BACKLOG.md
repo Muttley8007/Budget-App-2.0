@@ -58,3 +58,8 @@
 - [x] Compact Pay Card typography
 - [x] Compact Pay Card summary tiles
 - [x] Compact expense rows
+
+
+### Completed in v2.3.2-beta.1
+- [x] Restore easy access to Import and Export
+- [x] Remove redundant whole-app totals

@@ -9,7 +9,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-192.svg">
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=232-beta1">
 </head>
 <body>
   <div class="app-shell">
@@ -27,10 +27,7 @@
         <button class="btn btn-primary" onclick="showTab('cards')">Pay Cards</button>
       </div>
     </header>
-
-    <section id="summary" class="summary-grid"></section>
-
-    <section id="cardsTab" class="tab-section">
+<section id="cardsTab" class="tab-section">
       <div class="panel add-pay-panel">
         <div class="panel-header">
           <h2>Add Pay Period</h2>
@@ -70,21 +67,7 @@
       <div id="bills"></div>
     </section>
   </div>
-
-  <footer class="bottom-bar">
-    <div class="bottom-bar-inner">
-      <div class="menu-wrap">
-        <button class="btn btn-secondary menu-btn" onclick="toggleGlobalMenu()" title="Menu">⋯</button>
-        <div id="globalMenu" class="menu-panel menu-panel-up" style="display:none;">
-          <button class="btn btn-secondary" onclick="exportData()">Export</button>
-          <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import</button>
-          <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importData(event)">
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <nav class="mobile-bottom-nav" aria-label="Primary navigation">
+<nav class="mobile-bottom-nav" aria-label="Primary navigation">
     <button class="mobile-nav-item" data-tab="dashboard" onclick="showTab('dashboard')">
       <span class="mobile-nav-icon">▦</span><span>Dashboard</span>
     </button>
@@ -95,9 +78,43 @@
     <button class="mobile-nav-item" data-tab="cards" onclick="showTab('cards')">
       <span class="mobile-nav-icon">▣</span><span>Pay Cards</span>
     </button>
+    <button class="mobile-nav-item mobile-nav-more" onclick="toggleGlobalMenu()" title="Backup and restore">
+      <span class="mobile-nav-icon">⚙</span><span>More</span>
+    </button>
   </nav>
 
-  <script src="app.js?v=231-beta1"></script>
+  <div id="globalMenuBackdrop" class="global-menu-backdrop" style="display:none;" onclick="closeGlobalMenu()"></div>
+  <div id="globalMenu" class="global-menu-sheet" style="display:none;">
+    <div class="global-menu-handle"></div>
+    <div class="global-menu-heading">
+      <div>
+        <h3>Payday Planner</h3>
+        <p>Backup and restore</p>
+      </div>
+      <button class="icon-btn" onclick="closeGlobalMenu()" title="Close">×</button>
+    </div>
+
+    <button class="global-menu-action" onclick="exportData(); closeGlobalMenu();">
+      <span class="global-menu-action-icon">⇩</span>
+      <span>
+        <strong>Export backup</strong>
+        <small>Save a copy of your current data</small>
+      </span>
+    </button>
+
+    <button class="global-menu-action" onclick="document.getElementById('importFile').click()">
+      <span class="global-menu-action-icon">⇧</span>
+      <span>
+        <strong>Import backup</strong>
+        <small>Restore data from an exported file</small>
+      </span>
+    </button>
+
+    <input id="importFile" type="file" accept="application/json"
+      style="display:none" onchange="importData(event); closeGlobalMenu();">
+  </div>
+
+  <script src="app.js?v=232-beta1"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

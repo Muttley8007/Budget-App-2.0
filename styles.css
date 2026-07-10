@@ -2583,3 +2583,237 @@ body{
     height:40px;
   }
 }
+
+
+/* v2.3.1-beta.2 definitive compact Pay Card overrides */
+#list .pay-card.premium .pay-content.premium{
+  padding:16px !important;
+}
+
+#list .pay-card.premium .pay-date.premium{
+  font-size:22px !important;
+  line-height:1.12 !important;
+}
+
+#list .pay-card.premium .pay-note.premium{
+  margin-top:5px !important;
+  font-size:13px !important;
+}
+
+#list .pay-card.premium .pay-progress-track{
+  height:7px !important;
+  margin-bottom:15px !important;
+}
+
+#list .pay-card.premium .pay-summary-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin-bottom:14px !important;
+}
+
+#list .pay-card.premium .pay-summary-tile{
+  min-height:96px !important;
+  padding:9px 6px !important;
+  border-radius:18px !important;
+}
+
+#list .pay-card.premium .pay-summary-icon{
+  width:32px !important;
+  height:32px !important;
+  font-size:17px !important;
+  margin-bottom:6px !important;
+}
+
+#list .pay-card.premium .pay-summary-label{
+  font-size:12px !important;
+}
+
+#list .pay-card.premium .pay-summary-value{
+  margin-top:4px !important;
+  font-size:16px !important;
+}
+
+#list .pay-card.premium .pay-primary-actions{
+  gap:8px !important;
+  margin-bottom:15px !important;
+}
+
+#list .pay-card.premium .pay-add-expense,
+#list .pay-card.premium .pay-close-card{
+  min-height:46px !important;
+  padding:8px 10px !important;
+  font-size:13px !important;
+  border-radius:15px !important;
+}
+
+#list .pay-card.premium .pay-more-btn{
+  width:46px !important;
+  min-width:46px !important;
+  height:46px !important;
+}
+
+#list .pay-card.premium .expense-list.premium{
+  gap:8px !important;
+}
+
+#list .pay-card.premium .expense-row.premium{
+  grid-template-columns:38px minmax(0,1fr) 48px 56px !important;
+  gap:7px !important;
+  min-height:78px !important;
+  padding:10px 8px !important;
+  border-radius:18px !important;
+}
+
+#list .pay-card.premium .expense-avatar{
+  width:34px !important;
+  height:34px !important;
+  font-size:14px !important;
+}
+
+#list .pay-card.premium .expense-name.premium{
+  font-size:13px !important;
+  line-height:1.2 !important;
+}
+
+#list .pay-card.premium .expense-cat.premium{
+  margin-top:3px !important;
+  font-size:10px !important;
+}
+
+#list .pay-card.premium .expense-status-label{
+  margin-bottom:5px !important;
+  font-size:9px !important;
+}
+
+#list .pay-card.premium .expense-status-bar{
+  width:34px !important;
+  height:4px !important;
+}
+
+#list .pay-card.premium .expense-amount.premium{
+  font-size:14px !important;
+}
+
+#list .pay-card.premium .expense-menu-trigger{
+  width:38px !important;
+  min-width:38px !important;
+  height:38px !important;
+  border-radius:13px !important;
+}
+
+#list .pay-card.premium .pay-period-add{
+  margin-top:15px !important;
+  font-size:15px !important;
+}
+
+
+/* v2.3.2 global backup menu */
+.mobile-bottom-nav{
+  justify-content:space-between;
+}
+
+.mobile-nav-item{
+  min-width:58px;
+}
+
+.mobile-nav-more{
+  cursor:pointer;
+}
+
+.global-menu-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:180;
+  background:rgba(0,0,0,.62);
+  backdrop-filter:blur(3px);
+}
+
+.global-menu-sheet{
+  position:fixed;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  z-index:190;
+  width:min(680px,100%);
+  padding:10px 18px calc(22px + env(safe-area-inset-bottom));
+  border-radius:26px 26px 0 0;
+  background:linear-gradient(180deg,#151d29,#0b111b);
+  border:1px solid rgba(255,255,255,.13);
+  border-bottom:0;
+  box-shadow:0 -24px 70px rgba(0,0,0,.62);
+}
+
+.global-menu-handle{
+  width:44px;
+  height:5px;
+  margin:0 auto 15px;
+  border-radius:999px;
+  background:rgba(255,255,255,.23);
+}
+
+.global-menu-heading{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+}
+
+.global-menu-heading h3{
+  margin:0;
+  font-size:21px;
+}
+
+.global-menu-heading p{
+  margin:4px 0 0;
+  color:#9eacc5;
+  font-size:13px;
+}
+
+.global-menu-action{
+  width:100%;
+  min-height:74px;
+  margin-top:10px;
+  padding:13px 14px;
+  border-radius:18px;
+  border:1px solid rgba(164,181,209,.17);
+  background:linear-gradient(180deg,#111927,#0d1420);
+  color:#f4f7ff;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  text-align:left;
+}
+
+.global-menu-action-icon{
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  background:rgba(77,141,255,.14);
+  color:#77a8ff;
+  font-size:23px;
+}
+
+.global-menu-action strong,
+.global-menu-action small{
+  display:block;
+}
+
+.global-menu-action strong{
+  font-size:16px;
+}
+
+.global-menu-action small{
+  margin-top:4px;
+  color:#9eacc5;
+  font-size:12px;
+}
+
+/* The per-pay and dashboard summaries remain; only the redundant global summary is gone. */
+#summary{
+  display:none !important;
+}

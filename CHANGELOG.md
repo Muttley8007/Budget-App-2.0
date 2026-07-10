@@ -120,3 +120,16 @@
 - Reduced expense row height and padding.
 - Reduced expense avatar, status and action sizes.
 - Matched Pay Card information density more closely to Bills.
+
+
+## v2.3.1-beta.2
+### Fixed
+- Added stylesheet cache-busting so GitHub Pages and the installed PWA load the new Pay Card sizing.
+- Added definitive compact Pay Card overrides to prevent older mobile rules from taking precedence.
+
+
+## v2.3.2-beta.1
+### Changed
+- Removed the redundant whole-app Expected Pay, Expenses, Net Remaining and Active Pays summary.
+- Added a permanent More button to the mobile footer.
+- Moved Export and Import into a mobile bottom sheet accessible from every section.

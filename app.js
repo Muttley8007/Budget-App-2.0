@@ -368,29 +368,8 @@ function expenseCategoryClass(category){
   return 'other';
 }
 
-function renderSummary() {
-  const activePays = data.pays.filter(p => !p.archived);
-  const pay = activePays.reduce((s, p) => s + Number(p.pay || 0), 0);
-  const exp = activePays.reduce((s, p) => s + totals(p).exp, 0);
-  const rem = pay - exp;
-
-  document.getElementById('summary').innerHTML =
-    '<div class="stat-card">' +
-      '<div class="stat-label">Expected Pay</div>' +
-      '<div class="stat-value">' + money(pay) + '</div>' +
-    '</div>' +
-    '<div class="stat-card">' +
-      '<div class="stat-label">Expenses</div>' +
-      '<div class="stat-value">' + money(exp) + '</div>' +
-    '</div>' +
-    '<div class="stat-card">' +
-      '<div class="stat-label">Net Remaining</div>' +
-      '<div class="stat-value">' + money(rem) + '</div>' +
-    '</div>' +
-    '<div class="stat-card">' +
-      '<div class="stat-label">Active Pays</div>' +
-      '<div class="stat-value">' + activePays.length + '</div>' +
-    '</div>';
+function renderSummary(){
+  // Whole-app totals were removed from the main layout in v2.3.2.
 }
 
 function renderDashboard() {
@@ -1161,7 +1140,6 @@ function renderBills(){
 }
 
 function render() {
-  renderSummary();
   renderDashboard();
   renderBills();
 
@@ -1417,11 +1395,20 @@ render();
 let globalMenuOpen = false;
 
 function toggleGlobalMenu(){
-  globalMenuOpen = !globalMenuOpen;
-  const el = document.getElementById('globalMenu');
-  if (el) {
-    el.style.display = globalMenuOpen ? 'grid' : 'none';
-  }
+  const menu = document.getElementById('globalMenu');
+  const backdrop = document.getElementById('globalMenuBackdrop');
+  if (!menu || !backdrop) return;
+
+  const opening = menu.style.display === 'none' || !menu.style.display;
+  menu.style.display = opening ? 'block' : 'none';
+  backdrop.style.display = opening ? 'block' : 'none';
+}
+
+function closeGlobalMenu(){
+  const menu = document.getElementById('globalMenu');
+  const backdrop = document.getElementById('globalMenuBackdrop');
+  if (menu) menu.style.display = 'none';
+  if (backdrop) backdrop.style.display = 'none';
 }
 
 document.addEventListener('click', function(event){
