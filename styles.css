@@ -1874,3 +1874,25 @@ body{
     width:24px;
   }
 }
+
+/* v2.2.3 compact bill text */
+.bill-row.modern{grid-template-columns:54px minmax(0,1fr) 66px 82px}
+.bill-name{
+  font-size:17px;
+  line-height:1.25;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  overflow-wrap:anywhere;
+}
+.bill-main{min-width:0;padding-right:4px}
+@media(max-width:640px){
+  .bill-row.modern{grid-template-columns:48px minmax(0,1fr) 58px 70px;gap:10px}
+  .bill-name{font-size:15px;line-height:1.25}
+  .bill-meta{font-size:12px}
+}
+@media(max-width:430px){
+  .bill-row.modern{grid-template-columns:44px minmax(0,1fr) 50px 60px;gap:8px}
+  .bill-name{font-size:14px}
+  .bill-meta{font-size:11px}
+}

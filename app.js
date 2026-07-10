@@ -662,6 +662,14 @@ function editBill(id){
   showTab('bills');
 }
 
+function billShortDateLabel(d){
+  if (!d) return 'No due date';
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'short'
+  });
+}
+
 function billDateLabel(d){
   if (!d) return 'No due date';
   return new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
@@ -979,7 +987,7 @@ function renderBillSection(title, type){
                       <div class="bill-main">
                         <div class="bill-name">${escapeHtml(b.name)}</div>
                         <div class="bill-meta">
-                          Due: ${billDateLabel(b.dueDate)}<br>
+                          Due: ${billShortDateLabel(b.dueDate)}<br>
                           ${b.recurring ? 'Recurring' : 'One-off'}
                         </div>
                       </div>

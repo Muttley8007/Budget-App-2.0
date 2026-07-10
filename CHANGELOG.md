@@ -92,3 +92,9 @@
 - Added Duplicate to Next Period inside the bill action menu.
 - Added Add Bill link within each tracked period card.
 - Refined mobile bottom navigation sizing.
+
+## v2.2.3-beta.1
+- Bill due dates no longer show the year inside period cards.
+- Reduced bill-title font size.
+- Long bill names now wrap instead of truncating.
+- Rebalanced bill-row widths to give titles more space.
