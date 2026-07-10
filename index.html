@@ -84,7 +84,20 @@
     </div>
   </footer>
 
-  <script src="app.js?v=220-beta2"></script>
+  <nav class="mobile-bottom-nav" aria-label="Primary navigation">
+    <button class="mobile-nav-item" data-tab="dashboard" onclick="showTab('dashboard')">
+      <span class="mobile-nav-icon">▦</span><span>Dashboard</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="bills" onclick="showTab('bills')">
+      <span class="mobile-nav-icon">▤</span><span>Bills</span>
+    </button>
+    <button class="mobile-nav-add" onclick="showTab('cards'); window.scrollTo({top:0,behavior:'smooth'})">+</button>
+    <button class="mobile-nav-item" data-tab="cards" onclick="showTab('cards')">
+      <span class="mobile-nav-icon">▣</span><span>Pay Cards</span>
+    </button>
+  </nav>
+
+  <script src="app.js?v=221-beta1"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

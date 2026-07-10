@@ -27,6 +27,7 @@ data.bills.forEach(b => {
   if (typeof b.paidDate === 'undefined') b.paidDate = '';
   if (typeof b.planned === 'undefined') b.planned = false;
   if (typeof b.plannedDate === 'undefined') b.plannedDate = '';
+  if (typeof b.showActionMenu === 'undefined') b.showActionMenu = false;
   if (typeof b.plannedPayId === 'undefined') b.plannedPayId = '';
   if (typeof b.plannedExpenseId === 'undefined') b.plannedExpenseId = '';
   if (typeof b.showPlanForm === 'undefined') b.showPlanForm = false;
@@ -304,6 +305,11 @@ function showTab(tab) {
   document.getElementById('dashboardTab').style.display = tab === 'dashboard' ? 'block' : 'none';
   const billsTab = document.getElementById('billsTab');
   if (billsTab) billsTab.style.display = tab === 'bills' ? 'block' : 'none';
+
+  document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+
   if (tab === 'dashboard') drawMonthlyChart();
 }
 
@@ -663,6 +669,28 @@ function billDateLabel(d){
 
 
 
+
+function toggleBillMenu(id){
+  const bill = data.bills.find(b => b.id === id);
+  if (!bill) return;
+
+  data.bills.forEach(b => {
+    if (b.id !== id) b.showActionMenu = false;
+  });
+
+  bill.showActionMenu = !bill.showActionMenu;
+  save();
+  render();
+}
+
+function closeBillMenu(id){
+  const bill = data.bills.find(b => b.id === id);
+  if (!bill) return;
+  bill.showActionMenu = false;
+  save();
+  render();
+}
+
 function toggleBillPlanned(id){
   const bill = data.bills.find(b => b.id === id);
   if (!bill || bill.type === 'Fortnightly') return;
@@ -845,8 +873,7 @@ function renderBillSection(title, type){
   const periodKeys = Object.keys(groups)
     .filter(key => {
       if (type === 'Fortnightly') return true;
-      const periodBills = groups[key];
-      return periodBills.some(b => !b.paid);
+      return groups[key].some(b => !b.paid);
     })
     .sort((a,b) => {
       if (a === 'No date') return 1;
@@ -894,42 +921,37 @@ function renderBillSection(title, type){
 
                   <div class="bill-period-head-right">
                     ${tracked ? `
-                      <button class="btn btn-secondary bill-period-menu"
-                        onclick="duplicateBillPeriod('${type}','${key}')"
-                        title="Duplicate to next period">⧉</button>
+                      <button class="icon-btn" onclick="duplicateBillPeriod('${type}','${key}')" title="Duplicate to next period">⧉</button>
                     ` : ''}
-                    <button class="btn btn-secondary bill-period-toggle"
-                      onclick="toggleBillPeriod('${type}','${key}')"
-                      title="${collapsed ? 'Expand' : 'Collapse'}">
-                      ${collapsed ? '＋' : '－'}
+                    <button class="icon-btn" onclick="toggleBillPeriod('${type}','${key}')" title="${collapsed ? 'Expand' : 'Collapse'}">
+                      ${collapsed ? '+' : '−'}
                     </button>
                   </div>
                 </div>
 
                 ${tracked ? `
-                  <div class="bill-progress-group">
-                    <div class="bill-progress-label">
-                      <span>Planning</span>
-                      <span>${plannedCount}/${periodBills.length}</span>
+                  <div class="bill-progress-split">
+                    <div>
+                      <div class="bill-progress-label"><span>Planning</span><span>${plannedCount}/${periodBills.length}</span></div>
+                      <div class="bill-progress-track">
+                        <div class="bill-progress-fill planned" style="width:${planningProgress}%"></div>
+                      </div>
                     </div>
-                    <div class="bill-progress-track" aria-label="${planningProgress}% planned">
-                      <div class="bill-progress-fill planned" style="width:${planningProgress}%"></div>
-                    </div>
-
-                    <div class="bill-progress-label">
-                      <span>Payment</span>
-                      <span>${paidCount}/${periodBills.length}</span>
-                    </div>
-                    <div class="bill-progress-track" aria-label="${paymentProgress}% paid">
-                      <div class="bill-progress-fill paid" style="width:${paymentProgress}%"></div>
+                    <div>
+                      <div class="bill-progress-label"><span>Payment</span><span>${paidCount}/${periodBills.length}</span></div>
+                      <div class="bill-progress-track">
+                        <div class="bill-progress-fill paid" style="width:${paymentProgress}%"></div>
+                      </div>
                     </div>
                   </div>
                 ` : ''}
 
                 <div class="bill-list">
                   ${periodBills.map(b => `
-                    <div class="bill-row ${b.paid ? 'paid' : ''}">
-                      <div style="min-width:0;">
+                    <div class="bill-row modern ${b.paid ? 'paid' : ''}">
+                      <div class="bill-avatar">${escapeHtml((b.name || '?').trim().charAt(0).toUpperCase())}</div>
+
+                      <div class="bill-main">
                         <div class="bill-name">${escapeHtml(b.name)}</div>
                         <div class="bill-meta">
                           Due: ${billDateLabel(b.dueDate)}<br>
@@ -939,26 +961,36 @@ function renderBillSection(title, type){
                         </div>
                       </div>
 
-                      <div class="bill-right">
+                      <div class="bill-status-column">
+                        ${tracked ? `
+                          <div class="status-mini-labels"><span>P</span><span>PD</span></div>
+                          <div class="status-mini-bars">
+                            <span class="${b.planned ? 'on planned' : 'off'}"></span>
+                            <span class="${b.paid ? 'on paid' : 'off'}"></span>
+                          </div>
+                        ` : ''}
+                      </div>
+
+                      <div class="bill-right modern">
                         <div class="bill-amount">${money(b.amount)}</div>
-                        <div class="bill-actions">
-                          ${tracked ? `
-                            <button class="btn bill-state-btn ${b.planned ? 'planned-on' : 'btn-secondary'}"
-                              title="${b.planned ? 'Mark unplanned' : 'Mark planned'}"
-                              onclick="toggleBillPlanned('${b.id}')">
-                              ${b.planned ? '✓ Planned' : '□ Planned'}
-                            </button>
+                        <button class="icon-btn bill-menu-trigger" onclick="toggleBillMenu('${b.id}')" title="Bill actions">⋮</button>
 
-                            <button class="btn bill-state-btn ${b.paid ? 'paid-on' : 'btn-secondary'}"
-                              title="${b.paid ? 'Mark unpaid' : 'Mark paid'}"
-                              onclick="toggleBillPaid('${b.id}')">
-                              ${b.paid ? '✓ Paid' : '□ Paid'}
-                            </button>
-                          ` : ''}
-
-                          <button class="btn btn-secondary tick" title="Edit" onclick="editBill('${b.id}')">✏</button>
-                          <button class="btn btn-danger tick" title="Delete" onclick="deleteBill('${b.id}')">X</button>
-                        </div>
+                        ${b.showActionMenu ? `
+                          <div class="bill-action-menu">
+                            ${tracked ? `
+                              <button onclick="toggleBillPlanned('${b.id}')">
+                                <span>${b.planned ? '✓' : '○'}</span>
+                                ${b.planned ? 'Mark unplanned' : 'Mark planned'}
+                              </button>
+                              <button onclick="toggleBillPaid('${b.id}')">
+                                <span>${b.paid ? '✓' : '○'}</span>
+                                ${b.paid ? 'Mark unpaid' : 'Mark paid'}
+                              </button>
+                            ` : ''}
+                            <button onclick="editBill('${b.id}')"><span>✎</span>Edit</button>
+                            <button class="danger" onclick="deleteBill('${b.id}')"><span>⌫</span>Delete</button>
+                          </div>
+                        ` : ''}
                       </div>
                     </div>
                   `).join('')}

@@ -31,3 +31,10 @@
 - [ ] Bill notes
 - [ ] Search
 - [ ] History view
+
+
+### Completed in v2.2.1-beta.1
+- [x] Compact bill rows
+- [x] Move Planned/Paid into menu
+- [x] Add visual status cues
+- [x] Add mobile bottom navigation

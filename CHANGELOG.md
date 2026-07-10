@@ -70,3 +70,14 @@
 
 ### Kept simple
 - Fortnightly Bills remain a reference list without Planned or Paid states.
+
+
+## v2.2.1-beta.1
+### Changed
+- Refreshed the Bills interface for a cleaner mobile layout.
+- Moved Planned and Paid actions into each bill's three-dot menu.
+- Added compact visual status bars for Planned and Paid.
+- Kept paid bills dimmed.
+- Added circular bill initials and more compact bill rows.
+- Added a mobile bottom navigation bar.
+- Restyled period cards, progress bars and action buttons.
