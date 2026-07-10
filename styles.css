@@ -2817,3 +2817,98 @@ body{
 #summary{
   display:none !important;
 }
+
+/* v2.3.3 overflow fix for Pay Card expense rows */
+*, *::before, *::after { box-sizing: border-box; }
+
+.pay-card.premium,
+.pay-card.premium .pay-content.premium,
+.expenses-wrap.premium,
+.expense-list.premium,
+.expense-row.premium {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.expense-row.premium {
+  overflow: hidden;
+  grid-template-columns: 40px minmax(0, 1fr) 50px 64px !important;
+}
+
+.expense-main,
+.expense-status,
+.expense-right.premium {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.expense-name.premium,
+.expense-cat.premium {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.expense-status { overflow: hidden; }
+
+.expense-status-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-status-bar { max-width: 100%; }
+
+.expense-right.premium {
+  justify-self: end;
+  width: 64px;
+  overflow: visible;
+}
+
+.expense-amount.premium {
+  width: 100%;
+  max-width: 64px;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-menu-trigger {
+  align-self: flex-end;
+  margin-right: 0 !important;
+}
+
+@media (max-width: 430px) {
+  .expense-row.premium {
+    grid-template-columns: 36px minmax(0, 1fr) 42px 56px !important;
+    gap: 6px !important;
+    padding: 10px 8px !important;
+  }
+
+  .expense-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 14px !important;
+  }
+
+  .expense-name.premium { font-size: 12px !important; }
+  .expense-cat.premium { font-size: 10px !important; }
+  .expense-status-label { font-size: 9px !important; }
+  .expense-status-bar { width: 32px !important; }
+
+  .expense-right.premium { width: 56px; }
+
+  .expense-amount.premium {
+    max-width: 56px;
+    font-size: 13px !important;
+  }
+
+  .expense-menu-trigger {
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+  }
+}

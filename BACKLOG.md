@@ -63,3 +63,7 @@
 ### Completed in v2.3.2-beta.1
 - [x] Restore easy access to Import and Export
 - [x] Remove redundant whole-app totals
+
+### Completed in v2.3.3-beta.1
+- [x] Fix Pay Card expense text overflow
+- [x] Constrain amount and action columns on mobile

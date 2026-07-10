@@ -133,3 +133,10 @@
 - Removed the redundant whole-app Expected Pay, Expenses, Net Remaining and Active Pays summary.
 - Added a permanent More button to the mobile footer.
 - Moved Export and Import into a mobile bottom sheet accessible from every section.
+
+## v2.3.3-beta.1
+### Fixed
+- Prevented Pay Card expense text and amounts from overflowing their cards.
+- Added stricter grid sizing and width constraints.
+- Improved wrapping for long expense names.
+- Reduced mobile column widths for narrow screens.
