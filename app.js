@@ -24,6 +24,7 @@ data.bills.forEach(b => {
   if (typeof b.type === 'undefined') b.type = 'Monthly';
   if (typeof b.dueDate === 'undefined') b.dueDate = '';
   if (typeof b.paid === 'undefined') b.paid = false;
+  if (typeof b.paidDate === 'undefined') b.paidDate = '';
 });
 
 if (!data.billDraft) {
@@ -583,6 +584,7 @@ function addBill(){
     dueDate:d.dueDate || '',
     recurring:!!d.recurring,
     paid:false,
+    paidDate:'',
     createdAt:new Date().toISOString()
   });
 
@@ -649,6 +651,102 @@ function billDateLabel(d){
   return new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
 }
 
+
+function toggleBillPaid(id){
+  const bill = data.bills.find(b => b.id === id);
+  if (!bill || bill.type === 'Fortnightly') return;
+
+  bill.paid = !bill.paid;
+  bill.paidDate = bill.paid ? new Date().toISOString() : '';
+
+  save();
+  render();
+}
+
+function addMonthsSafe(dateString, months){
+  const d = new Date(dateString + 'T00:00:00');
+  const originalDay = d.getDate();
+
+  d.setDate(1);
+  d.setMonth(d.getMonth() + months);
+
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  d.setDate(Math.min(originalDay, lastDay));
+
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0')
+  ].join('-');
+}
+
+function nextBillDueDate(bill){
+  if (!bill.dueDate) return '';
+
+  if (bill.type === 'Monthly') return addMonthsSafe(bill.dueDate, 1);
+  if (bill.type === 'Quarterly') return addMonthsSafe(bill.dueDate, 3);
+  if (bill.type === 'Annual') return addMonthsSafe(bill.dueDate, 12);
+
+  return bill.dueDate;
+}
+
+function duplicateBillPeriod(type, key){
+  if (type === 'Fortnightly') return;
+
+  const sourceBills = (data.bills || []).filter(b =>
+    b.type === type &&
+    billPeriodKey(b) === key &&
+    b.recurring
+  );
+
+  if (!sourceBills.length){
+    alert('There are no recurring bills to copy.');
+    return;
+  }
+
+  let copied = 0;
+  let skipped = 0;
+
+  sourceBills.forEach(bill => {
+    const dueDate = nextBillDueDate(bill);
+    const targetKey = dueDate ? billPeriodKey({ type, dueDate }) : 'No date';
+
+    const duplicateExists = data.bills.some(existing =>
+      existing.type === type &&
+      billPeriodKey(existing) === targetKey &&
+      String(existing.name || '').trim().toLowerCase() === String(bill.name || '').trim().toLowerCase()
+    );
+
+    if (duplicateExists){
+      skipped++;
+      return;
+    }
+
+    data.bills.push({
+      id: 'b' + Date.now().toString() + Math.random().toString(36).slice(2, 7),
+      name: bill.name,
+      amount: Number(bill.amount || 0),
+      type: bill.type,
+      dueDate,
+      recurring: true,
+      paid: false,
+      paidDate: '',
+      createdAt: new Date().toISOString()
+    });
+
+    copied++;
+  });
+
+  save();
+  render();
+
+  const targetLabel = sourceBills[0] && sourceBills[0].dueDate
+    ? billPeriodTitle(billPeriodKey({ type, dueDate: nextBillDueDate(sourceBills[0]) }), type)
+    : 'next period';
+
+  alert(`${targetLabel} created.\n${copied} recurring bill${copied === 1 ? '' : 's'} copied${skipped ? `.\n${skipped} duplicate${skipped === 1 ? '' : 's'} skipped` : ''}.`);
+}
+
 function billPeriodKey(bill){
   if (!bill.dueDate) return 'No date';
   const d = new Date(bill.dueDate + 'T00:00:00');
@@ -700,7 +798,7 @@ function isBillPeriodCollapsed(type, key){
 }
 
 function renderBillSection(title, type){
-  const bills = (data.bills || [])
+  const allBills = (data.bills || [])
     .filter(b => b.type === type)
     .slice()
     .sort((a,b) => {
@@ -710,27 +808,34 @@ function renderBillSection(title, type){
       return String(a.name).localeCompare(String(b.name));
     });
 
-  const total = bills.reduce((s,b) => s + Number(b.amount || 0), 0);
   const groups = {};
-
-  bills.forEach(b => {
+  allBills.forEach(b => {
     const key = billPeriodKey(b);
     if (!groups[key]) groups[key] = [];
     groups[key].push(b);
   });
 
-  const periodKeys = Object.keys(groups).sort((a,b) => {
-    if (a === 'No date') return 1;
-    if (b === 'No date') return -1;
-    return a.localeCompare(b);
-  });
+  const periodKeys = Object.keys(groups)
+    .filter(key => {
+      if (type === 'Fortnightly') return true;
+      const periodBills = groups[key];
+      return !periodBills.length || periodBills.some(b => !b.paid);
+    })
+    .sort((a,b) => {
+      if (a === 'No date') return 1;
+      if (b === 'No date') return -1;
+      return a.localeCompare(b);
+    });
+
+  const activeBills = allBills.filter(b => type === 'Fortnightly' || !b.paid);
+  const activeTotal = activeBills.reduce((s,b) => s + Number(b.amount || 0), 0);
 
   return `
     <div class="bill-card">
       <div class="bill-card-header">
         <div>
           <h3 class="bill-card-title">${title}</h3>
-          <div class="bill-card-summary">${bills.length} bills • ${money(total)}</div>
+          <div class="bill-card-summary">${activeBills.length} active bills • ${money(activeTotal)} outstanding</div>
         </div>
       </div>
 
@@ -738,7 +843,11 @@ function renderBillSection(title, type){
         <div class="bill-period-grid">
           ${periodKeys.map(key => {
             const periodBills = groups[key];
-            const periodTotal = periodBills.reduce((s,b) => s + Number(b.amount || 0), 0);
+            const tracked = type !== 'Fortnightly';
+            const unpaidBills = tracked ? periodBills.filter(b => !b.paid) : periodBills;
+            const outstanding = unpaidBills.reduce((s,b) => s + Number(b.amount || 0), 0);
+            const paidCount = tracked ? periodBills.filter(b => b.paid).length : 0;
+            const progress = tracked && periodBills.length ? Math.round((paidCount / periodBills.length) * 100) : 0;
             const collapsed = isBillPeriodCollapsed(type, key);
 
             return `
@@ -746,9 +855,19 @@ function renderBillSection(title, type){
                 <div class="bill-period-header">
                   <div>
                     <h4 class="bill-period-title">${billPeriodTitle(key, type)}</h4>
-                    <div class="bill-period-summary">${periodBills.length} bills • ${money(periodTotal)}</div>
+                    <div class="bill-period-summary">
+                      ${tracked
+                        ? `${paidCount} of ${periodBills.length} paid • ${money(outstanding)} outstanding`
+                        : `${periodBills.length} bills • ${money(outstanding)}`}
+                    </div>
                   </div>
+
                   <div class="bill-period-head-right">
+                    ${tracked ? `
+                      <button class="btn btn-secondary bill-period-menu"
+                        onclick="duplicateBillPeriod('${type}','${key}')"
+                        title="Duplicate to next period">⧉</button>
+                    ` : ''}
                     <button class="btn btn-secondary bill-period-toggle"
                       onclick="toggleBillPeriod('${type}','${key}')"
                       title="${collapsed ? 'Expand' : 'Collapse'}">
@@ -757,19 +876,31 @@ function renderBillSection(title, type){
                   </div>
                 </div>
 
+                ${tracked ? `
+                  <div class="bill-progress-track" aria-label="${progress}% paid">
+                    <div class="bill-progress-fill" style="width:${progress}%"></div>
+                  </div>
+                ` : ''}
+
                 <div class="bill-list">
                   ${periodBills.map(b => `
-                    <div class="bill-row">
+                    <div class="bill-row ${b.paid ? 'paid' : ''}">
                       <div style="min-width:0;">
                         <div class="bill-name">${escapeHtml(b.name)}</div>
                         <div class="bill-meta">
                           Due: ${billDateLabel(b.dueDate)}<br>
                           ${b.recurring ? 'Recurring' : 'One-off'}
+                          ${b.paidDate ? `<br>Paid: ${new Date(b.paidDate).toLocaleDateString('en-AU')}` : ''}
                         </div>
                       </div>
                       <div class="bill-right">
                         <div class="bill-amount">${money(b.amount)}</div>
                         <div class="bill-actions">
+                          ${tracked ? `
+                            <button class="btn tick ${b.paid ? 'paid' : 'btn-secondary'}"
+                              title="${b.paid ? 'Mark unpaid' : 'Mark paid'}"
+                              onclick="toggleBillPaid('${b.id}')">${b.paid ? '✓' : '□'}</button>
+                          ` : ''}
                           <button class="btn btn-secondary tick" title="Edit" onclick="editBill('${b.id}')">✏</button>
                           <button class="btn btn-danger tick" title="Delete" onclick="deleteBill('${b.id}')">X</button>
                         </div>
@@ -781,7 +912,7 @@ function renderBillSection(title, type){
             `;
           }).join('')}
         </div>
-      ` : '<div class="empty-state">No bills yet</div>'}
+      ` : '<div class="empty-state">No active bills</div>'}
     </div>
   `;
 }

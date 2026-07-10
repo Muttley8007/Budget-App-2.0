@@ -1023,3 +1023,41 @@ body{
 }
 .bill-period-card.collapsed .bill-list{display:none}
 .bill-period-card.collapsed .bill-period-header{margin-bottom:0}
+
+
+/* Bill lifecycle v2.1 */
+.bill-period-head-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.bill-period-menu{
+  width:42px;
+  min-width:42px;
+  height:42px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+}
+
+.bill-row.paid{
+  opacity:.52;
+}
+
+.bill-progress-track{
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.08);
+  overflow:hidden;
+  margin:0 0 14px;
+}
+
+.bill-progress-fill{
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#2ea76a,#58c78e);
+  transition:width .2s ease;
+}

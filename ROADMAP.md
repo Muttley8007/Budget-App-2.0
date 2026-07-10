@@ -28,3 +28,10 @@
 - Collapsible period cards
 - Fortnightly frequency
 - Quarterly frequency
+
+
+### v2.1.0 Beta
+- Bill paid lifecycle
+- Period progress
+- Roll forward recurring bills
+- Hide completed periods
