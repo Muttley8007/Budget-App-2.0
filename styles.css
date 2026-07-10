@@ -1061,3 +1061,105 @@ body{
   background:linear-gradient(90deg,#2ea76a,#58c78e);
   transition:width .2s ease;
 }
+
+
+/* Plan bill into a pay card */
+.bill-plan-btn{
+  min-width:72px;
+  min-height:42px;
+  padding:8px 12px;
+}
+
+.bill-planned-label{
+  color:#90e1b3;
+  font-weight:700;
+}
+
+.bill-plan-form{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  background:#090f19;
+  display:grid;
+  gap:10px;
+}
+
+.bill-plan-form select{
+  width:100%;
+  background:#0f1420;
+  color:#ecf2ff;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:11px 12px;
+}
+
+.bill-plan-form-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+@media(max-width:640px){
+  .bill-plan-form-actions .btn{
+    flex:1 1 auto;
+  }
+}
+
+
+/* Bill planning + payment workflow */
+.bill-progress-group{
+  display:grid;
+  gap:7px;
+  margin:0 0 14px;
+}
+
+.bill-progress-label{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#9fb0ce;
+  font-size:12px;
+}
+
+.bill-progress-fill.planned{
+  background:linear-gradient(90deg,#4b7cff,#7ca3ff);
+}
+
+.bill-progress-fill.paid{
+  background:linear-gradient(90deg,#2ea76a,#58c78e);
+}
+
+.bill-state-btn{
+  min-height:42px;
+  padding:8px 11px;
+  white-space:nowrap;
+}
+
+.bill-state-btn.planned-on{
+  background:rgba(75,124,255,0.20);
+  border:1px solid rgba(124,163,255,0.45);
+  color:#cbd9ff;
+}
+
+.bill-state-btn.paid-on{
+  background:rgba(46,167,106,0.20);
+  border:1px solid rgba(88,199,142,0.45);
+  color:#c9f4db;
+}
+
+@media(max-width:640px){
+  .bill-actions{
+    flex-wrap:wrap;
+  }
+
+  .bill-state-btn{
+    flex:1 1 auto;
+  }
+}
+
+.bill-plan-form,
+.bill-plan-btn,
+.bill-planned-label{
+  display:none !important;
+}

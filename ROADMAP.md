@@ -35,3 +35,16 @@
 - Period progress
 - Roll forward recurring bills
 - Hide completed periods
+
+
+### v2.2.0 Beta
+- Bills → Pay Card planning
+- Planned status
+- Move/remove planned allocation
+
+
+### v2.2.0 Beta.2
+- Independent Planned state
+- Independent Paid state
+- Dual progress bars
+- Unplanned and Outstanding summaries

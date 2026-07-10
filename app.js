@@ -25,6 +25,11 @@ data.bills.forEach(b => {
   if (typeof b.dueDate === 'undefined') b.dueDate = '';
   if (typeof b.paid === 'undefined') b.paid = false;
   if (typeof b.paidDate === 'undefined') b.paidDate = '';
+  if (typeof b.planned === 'undefined') b.planned = false;
+  if (typeof b.plannedDate === 'undefined') b.plannedDate = '';
+  if (typeof b.plannedPayId === 'undefined') b.plannedPayId = '';
+  if (typeof b.plannedExpenseId === 'undefined') b.plannedExpenseId = '';
+  if (typeof b.showPlanForm === 'undefined') b.showPlanForm = false;
 });
 
 if (!data.billDraft) {
@@ -583,8 +588,13 @@ function addBill(){
     type:d.type || 'Monthly',
     dueDate:d.dueDate || '',
     recurring:!!d.recurring,
+    planned:false,
+    plannedDate:'',
     paid:false,
     paidDate:'',
+    plannedPayId:'',
+    plannedExpenseId:'',
+    showPlanForm:false,
     createdAt:new Date().toISOString()
   });
 
@@ -651,6 +661,18 @@ function billDateLabel(d){
   return new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
 }
 
+
+
+function toggleBillPlanned(id){
+  const bill = data.bills.find(b => b.id === id);
+  if (!bill || bill.type === 'Fortnightly') return;
+
+  bill.planned = !bill.planned;
+  bill.plannedDate = bill.planned ? new Date().toISOString() : '';
+
+  save();
+  render();
+}
 
 function toggleBillPaid(id){
   const bill = data.bills.find(b => b.id === id);
@@ -729,8 +751,13 @@ function duplicateBillPeriod(type, key){
       type: bill.type,
       dueDate,
       recurring: true,
+      planned: false,
+      plannedDate: '',
       paid: false,
       paidDate: '',
+      plannedPayId: '',
+      plannedExpenseId: '',
+      showPlanForm: false,
       createdAt: new Date().toISOString()
     });
 
@@ -819,7 +846,7 @@ function renderBillSection(title, type){
     .filter(key => {
       if (type === 'Fortnightly') return true;
       const periodBills = groups[key];
-      return !periodBills.length || periodBills.some(b => !b.paid);
+      return periodBills.some(b => !b.paid);
     })
     .sort((a,b) => {
       if (a === 'No date') return 1;
@@ -844,10 +871,13 @@ function renderBillSection(title, type){
           ${periodKeys.map(key => {
             const periodBills = groups[key];
             const tracked = type !== 'Fortnightly';
-            const unpaidBills = tracked ? periodBills.filter(b => !b.paid) : periodBills;
-            const outstanding = unpaidBills.reduce((s,b) => s + Number(b.amount || 0), 0);
+            const plannedCount = tracked ? periodBills.filter(b => b.planned).length : 0;
             const paidCount = tracked ? periodBills.filter(b => b.paid).length : 0;
-            const progress = tracked && periodBills.length ? Math.round((paidCount / periodBills.length) * 100) : 0;
+            const unpaidBills = tracked ? periodBills.filter(b => !b.paid) : periodBills;
+            const unplannedBills = tracked ? periodBills.filter(b => !b.planned) : [];
+            const outstanding = unpaidBills.reduce((s,b) => s + Number(b.amount || 0), 0);
+            const planningProgress = tracked && periodBills.length ? Math.round((plannedCount / periodBills.length) * 100) : 0;
+            const paymentProgress = tracked && periodBills.length ? Math.round((paidCount / periodBills.length) * 100) : 0;
             const collapsed = isBillPeriodCollapsed(type, key);
 
             return `
@@ -857,7 +887,7 @@ function renderBillSection(title, type){
                     <h4 class="bill-period-title">${billPeriodTitle(key, type)}</h4>
                     <div class="bill-period-summary">
                       ${tracked
-                        ? `${paidCount} of ${periodBills.length} paid • ${money(outstanding)} outstanding`
+                        ? `${unplannedBills.length} unplanned • ${unpaidBills.length} outstanding • ${money(outstanding)}`
                         : `${periodBills.length} bills • ${money(outstanding)}`}
                     </div>
                   </div>
@@ -877,8 +907,22 @@ function renderBillSection(title, type){
                 </div>
 
                 ${tracked ? `
-                  <div class="bill-progress-track" aria-label="${progress}% paid">
-                    <div class="bill-progress-fill" style="width:${progress}%"></div>
+                  <div class="bill-progress-group">
+                    <div class="bill-progress-label">
+                      <span>Planning</span>
+                      <span>${plannedCount}/${periodBills.length}</span>
+                    </div>
+                    <div class="bill-progress-track" aria-label="${planningProgress}% planned">
+                      <div class="bill-progress-fill planned" style="width:${planningProgress}%"></div>
+                    </div>
+
+                    <div class="bill-progress-label">
+                      <span>Payment</span>
+                      <span>${paidCount}/${periodBills.length}</span>
+                    </div>
+                    <div class="bill-progress-track" aria-label="${paymentProgress}% paid">
+                      <div class="bill-progress-fill paid" style="width:${paymentProgress}%"></div>
+                    </div>
                   </div>
                 ` : ''}
 
@@ -890,17 +934,28 @@ function renderBillSection(title, type){
                         <div class="bill-meta">
                           Due: ${billDateLabel(b.dueDate)}<br>
                           ${b.recurring ? 'Recurring' : 'One-off'}
+                          ${b.plannedDate ? `<br>Planned: ${new Date(b.plannedDate).toLocaleDateString('en-AU')}` : ''}
                           ${b.paidDate ? `<br>Paid: ${new Date(b.paidDate).toLocaleDateString('en-AU')}` : ''}
                         </div>
                       </div>
+
                       <div class="bill-right">
                         <div class="bill-amount">${money(b.amount)}</div>
                         <div class="bill-actions">
                           ${tracked ? `
-                            <button class="btn tick ${b.paid ? 'paid' : 'btn-secondary'}"
+                            <button class="btn bill-state-btn ${b.planned ? 'planned-on' : 'btn-secondary'}"
+                              title="${b.planned ? 'Mark unplanned' : 'Mark planned'}"
+                              onclick="toggleBillPlanned('${b.id}')">
+                              ${b.planned ? '✓ Planned' : '□ Planned'}
+                            </button>
+
+                            <button class="btn bill-state-btn ${b.paid ? 'paid-on' : 'btn-secondary'}"
                               title="${b.paid ? 'Mark unpaid' : 'Mark paid'}"
-                              onclick="toggleBillPaid('${b.id}')">${b.paid ? '✓' : '□'}</button>
+                              onclick="toggleBillPaid('${b.id}')">
+                              ${b.paid ? '✓ Paid' : '□ Paid'}
+                            </button>
                           ` : ''}
+
                           <button class="btn btn-secondary tick" title="Edit" onclick="editBill('${b.id}')">✏</button>
                           <button class="btn btn-danger tick" title="Delete" onclick="deleteBill('${b.id}')">X</button>
                         </div>

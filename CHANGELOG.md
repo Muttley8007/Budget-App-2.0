@@ -44,3 +44,29 @@
 
 ### Kept simple
 - Fortnightly Bills remain a reference list without paid tracking or duplication.
+
+
+## v2.2.0-beta.1
+### Added
+- Plan a Monthly, Quarterly or Annual bill into an active Pay Card.
+- Planned bills show the selected pay date.
+- Changing the planned pay moves the linked expense.
+- Removing a plan removes the linked expense from the Pay Card.
+- Linked Pay Card expenses retain the bill due date.
+
+### Changed
+- Replaced the bill Edit pencil with the primary Plan action.
+- Fortnightly Bills remain reference-only and cannot be planned.
+
+
+## v2.2.0-beta.2
+### Changed
+- Replaced experimental Bill → Pay Card planning with independent Planned and Paid states.
+- Added planned date recording.
+- Added separate Planning and Payment progress bars.
+- Added Unplanned and Outstanding counts to each tracked period.
+- Restored bill Edit action.
+- Monthly, Quarterly and Annual periods still disappear once fully paid.
+
+### Kept simple
+- Fortnightly Bills remain a reference list without Planned or Paid states.
