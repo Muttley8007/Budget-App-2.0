@@ -140,3 +140,11 @@
 - Added stricter grid sizing and width constraints.
 - Improved wrapping for long expense names.
 - Reduced mobile column widths for narrow screens.
+
+
+## v2.4.0-beta.1
+### Changed
+- Rebuilt the Pay Cards renderer with a clean component structure.
+- Replaced the conflicting legacy grid with a predictable flex layout for expenses.
+- Matched Pay Card spacing, typography and information density to Bills.
+- Preserved all existing Pay Card data and behaviours.

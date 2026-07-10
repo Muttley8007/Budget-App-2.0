@@ -1155,65 +1155,68 @@ function render() {
 
   box.innerHTML = activePays.map(p => {
     const t = totals(p);
-    const s = stat(t.rem);
     const expenses = p.expenses || [];
     const paidCount = expenses.filter(e => e.paid).length;
-    const paymentProgress = expenses.length ? Math.round((paidCount / expenses.length) * 100) : 0;
+    const paymentProgress = expenses.length
+      ? Math.round((paidCount / expenses.length) * 100)
+      : 0;
 
     return `
-      <div class="pay-card premium ${p.collapsed ? 'collapsed' : ''}">
-        <div class="pay-content premium">
-          <div class="pay-head premium">
-            <div class="pay-title-block">
-              <div class="pay-date premium">${dateFmt(p.date)}</div>
-              <div class="pay-note premium">${escapeHtml(p.note || daysUntilLabel(p.date))}</div>
-            </div>
-
-            <div class="pay-head-right">
-              <button class="icon-btn" onclick="toggleCollapse('${p.id}')" title="${p.collapsed ? 'Expand' : 'Collapse'}">
-                ${p.collapsed ? '+' : '−'}
-              </button>
-            </div>
+      <article class="pp-pay-card ${p.collapsed ? 'is-collapsed' : ''}">
+        <header class="pp-pay-header">
+          <div class="pp-pay-heading">
+            <h2>${dateFmt(p.date)}</h2>
+            <p>${escapeHtml(p.note || daysUntilLabel(p.date))}</p>
           </div>
 
-          <div class="pay-progress-track" aria-label="${paymentProgress}% paid">
-            <div class="pay-progress-fill" style="width:${paymentProgress}%"></div>
+          <button
+            class="pp-icon-button"
+            onclick="toggleCollapse('${p.id}')"
+            title="${p.collapsed ? 'Expand' : 'Collapse'}"
+          >
+            ${p.collapsed ? '+' : '−'}
+          </button>
+        </header>
+
+        <div class="pp-pay-body">
+          <div class="pp-pay-progress" aria-label="${paymentProgress}% paid">
+            <span style="width:${paymentProgress}%"></span>
           </div>
 
-          <div class="pay-summary-grid">
-            <div class="pay-summary-tile">
-              <div class="pay-summary-icon income">$</div>
-              <div class="pay-summary-label">Income</div>
-              <div class="pay-summary-value">${money(p.pay)}</div>
+          <section class="pp-pay-metrics">
+            <div class="pp-metric">
+              <span class="pp-metric-icon is-income">$</span>
+              <span class="pp-metric-label">Income</span>
+              <strong>${money(p.pay)}</strong>
             </div>
 
-            <div class="pay-summary-tile">
-              <div class="pay-summary-icon spent">↓</div>
-              <div class="pay-summary-label">Spent</div>
-              <div class="pay-summary-value">${money(t.exp)}</div>
+            <div class="pp-metric">
+              <span class="pp-metric-icon is-spent">↓</span>
+              <span class="pp-metric-label">Spent</span>
+              <strong>${money(t.exp)}</strong>
             </div>
 
-            <div class="pay-summary-tile">
-              <div class="pay-summary-icon bills">▤</div>
-              <div class="pay-summary-label">Bills</div>
-              <div class="pay-summary-value">${expenses.length}</div>
+            <div class="pp-metric">
+              <span class="pp-metric-icon is-bills">▤</span>
+              <span class="pp-metric-label">Bills</span>
+              <strong>${expenses.length}</strong>
             </div>
 
-            <div class="pay-summary-tile">
-              <div class="pay-summary-icon remaining">▣</div>
-              <div class="pay-summary-label">Remaining</div>
-              <div class="pay-summary-value">${money(t.rem)}</div>
+            <div class="pp-metric">
+              <span class="pp-metric-icon is-remaining">▣</span>
+              <span class="pp-metric-label">Remaining</span>
+              <strong>${money(t.rem)}</strong>
             </div>
-          </div>
+          </section>
 
-          <div class="pay-primary-actions">
-            <button class="btn btn-primary pay-add-expense" onclick="addExp('${p.id}')">＋ Add Expense</button>
-            <button class="btn btn-secondary pay-close-card" onclick="closePay('${p.id}')">▤ Close Pay Card</button>
+          <div class="pp-pay-actions">
+            <button class="btn btn-primary" onclick="addExp('${p.id}')">＋ Add Expense</button>
+            <button class="btn btn-secondary" onclick="closePay('${p.id}')">▤ Close Pay Card</button>
 
             <div class="menu-wrap">
-              <button class="icon-btn pay-more-btn" onclick="togglePayMenu('${p.id}')" title="More">⋯</button>
+              <button class="pp-icon-button" onclick="togglePayMenu('${p.id}')" title="More">⋯</button>
               ${openMenuPayId === p.id ? `
-                <div class="menu-panel pay-modern-menu">
+                <div class="menu-panel pp-pay-menu">
                   <button class="btn btn-secondary" onclick="editPay('${p.id}')">✎ Edit Pay</button>
                   <button class="btn btn-danger" onclick="delPay('${p.id}')">⌫ Delete Pay</button>
                 </div>
@@ -1222,14 +1225,14 @@ function render() {
           </div>
 
           ${p.showExpenseForm ? `
-            <div class="inline-expense-form premium">
+            <div class="inline-expense-form pp-expense-form">
               ${data.templates.length ? `
                 <div class="inline-expense-template-row">
                   <select onchange="applyExpenseTemplate('${p.id}', this.value)">
                     <option value="">Choose saved expense</option>
-                    ${data.templates.map(t => `
-                      <option value="${t.id}" ${p.selectedTemplateId === t.id ? 'selected' : ''}>
-                        ${escapeHtml(t.name)} (${money(t.amount)})
+                    ${data.templates.map(tpl => `
+                      <option value="${tpl.id}" ${p.selectedTemplateId === tpl.id ? 'selected' : ''}>
+                        ${escapeHtml(tpl.name)} (${money(tpl.amount)})
                       </option>
                     `).join('')}
                   </select>
@@ -1237,12 +1240,21 @@ function render() {
               ` : ''}
 
               <div class="inline-expense-grid">
-                <input type="text" placeholder="Expense name"
+                <input
+                  type="text"
+                  placeholder="Expense name"
                   value="${escapeHtml(p.newExpenseName || '')}"
-                  oninput="updateExpenseDraft('${p.id}','newExpenseName', this.value)">
-                <input type="number" step="0.01" placeholder="Amount"
+                  oninput="updateExpenseDraft('${p.id}','newExpenseName', this.value)"
+                >
+
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Amount"
                   value="${escapeHtml(p.newExpenseAmount || '')}"
-                  oninput="updateExpenseDraft('${p.id}','newExpenseAmount', this.value)">
+                  oninput="updateExpenseDraft('${p.id}','newExpenseAmount', this.value)"
+                >
+
                 <select onchange="updateExpenseDraft('${p.id}','newExpenseCat', this.value)">
                   <option value="Fixed" ${(p.newExpenseCat || 'Fixed') === 'Fixed' ? 'selected' : ''}>Fixed</option>
                   <option value="Variable" ${(p.newExpenseCat || '') === 'Variable' ? 'selected' : ''}>Variable</option>
@@ -1259,58 +1271,60 @@ function render() {
             </div>
           ` : ''}
 
-          <div class="expenses-wrap premium">
-            ${expenses.length ? `
-              <div class="expense-list premium">
-                ${expenses.map(e => {
-                  const menuKey = `${p.id}:${e.id}`;
-                  return `
-                    <div class="expense-row premium ${e.paid ? 'paid' : ''}">
-                      <div class="expense-avatar ${expenseCategoryClass(e.cat)}">
-                        ${expenseInitial(e.name)}
+          <section class="pp-expense-list">
+            ${expenses.length ? expenses.map(e => {
+              const menuKey = `${p.id}:${e.id}`;
+
+              return `
+                <div class="pp-expense-row ${e.paid ? 'is-paid' : ''}">
+                  <div class="pp-expense-avatar ${expenseCategoryClass(e.cat)}">
+                    ${expenseInitial(e.name)}
+                  </div>
+
+                  <div class="pp-expense-info">
+                    <div class="pp-expense-name">${escapeHtml(e.name)}</div>
+                    <div class="pp-expense-category">${escapeHtml(e.cat || '')}</div>
+                  </div>
+
+                  <div class="pp-expense-payment">
+                    <span>Payment</span>
+                    <i class="${e.paid ? 'is-paid' : ''}"></i>
+                  </div>
+
+                  <div class="pp-expense-end">
+                    <strong>${money(e.amount)}</strong>
+                    <button
+                      class="pp-icon-button pp-expense-menu-button"
+                      onclick="toggleExpenseMenu('${p.id}','${e.id}')"
+                      title="Expense actions"
+                    >
+                      ⋮
+                    </button>
+
+                    ${openExpenseMenuId === menuKey ? `
+                      <div class="expense-action-menu pp-expense-menu">
+                        <button onclick="togglePaid('${p.id}','${e.id}')">
+                          <span>${e.paid ? '✓' : '○'}</span>
+                          ${e.paid ? 'Mark unpaid' : 'Mark paid'}
+                        </button>
+                        <button class="danger" onclick="delExp('${p.id}','${e.id}')">
+                          <span>⌫</span>Delete
+                        </button>
                       </div>
+                    ` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('') : '<div class="empty-state">No expenses yet</div>'}
+          </section>
 
-                      <div class="expense-main">
-                        <div class="expense-name premium">${escapeHtml(e.name)}</div>
-                        <div class="expense-cat premium">${escapeHtml(e.cat || '')}</div>
-                      </div>
-
-                      <div class="expense-status">
-                        <div class="expense-status-label">Payment</div>
-                        <div class="expense-status-bar ${e.paid ? 'paid' : ''}"></div>
-                      </div>
-
-                      <div class="expense-right premium">
-                        <div class="expense-amount premium">${money(e.amount)}</div>
-
-                        <button class="icon-btn expense-menu-trigger"
-                          onclick="toggleExpenseMenu('${p.id}','${e.id}')"
-                          title="Expense actions">⋮</button>
-
-                        ${openExpenseMenuId === menuKey ? `
-                          <div class="expense-action-menu">
-                            <button onclick="togglePaid('${p.id}','${e.id}')">
-                              <span>${e.paid ? '✓' : '○'}</span>
-                              ${e.paid ? 'Mark unpaid' : 'Mark paid'}
-                            </button>
-                            <button class="danger" onclick="delExp('${p.id}','${e.id}')">
-                              <span>⌫</span>Delete
-                            </button>
-                          </div>
-                        ` : ''}
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-
-              <button class="period-add-bill pay-period-add" onclick="addExp('${p.id}')">
-                <span>⊕</span> Add Expense
-              </button>
-            ` : '<div class="empty-state">No expenses yet</div>'}
-          </div>
+          ${expenses.length ? `
+            <button class="period-add-bill pp-add-expense-link" onclick="addExp('${p.id}')">
+              <span>⊕</span> Add Expense
+            </button>
+          ` : ''}
         </div>
-      </div>
+      </article>
     `;
   }).join('');
 }

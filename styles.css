@@ -2912,3 +2912,369 @@ body{
     height: 36px !important;
   }
 }
+
+
+/* v2.4.0 Pay Card clean refactor */
+.pp-pay-card,
+.pp-pay-card * {
+  box-sizing: border-box;
+}
+
+.pp-pay-card {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 18px;
+  border: 1px solid rgba(165, 183, 211, .18);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #0f1622, #090f18);
+  color: #f4f7ff;
+  overflow: visible;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .24);
+}
+
+.pp-pay-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 18px 0;
+}
+
+.pp-pay-heading {
+  min-width: 0;
+}
+
+.pp-pay-heading h2 {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+}
+
+.pp-pay-heading p {
+  margin: 6px 0 0;
+  color: #9eacc5;
+  font-size: 13px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.pp-icon-button {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #161e2b, #101722);
+  color: #f4f7ff;
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-pay-body {
+  padding: 16px 18px 18px;
+}
+
+.pp-pay-progress {
+  width: 100%;
+  height: 7px;
+  margin: 0 0 15px;
+  border-radius: 999px;
+  background: #202734;
+  overflow: hidden;
+}
+
+.pp-pay-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #45c878, #74e39a);
+}
+
+.pp-pay-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.pp-metric {
+  min-width: 0;
+  min-height: 102px;
+  padding: 10px 7px;
+  border: 1px solid rgba(164, 181, 209, .16);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #121b29, #0d1420);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-metric-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 6px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-metric-icon.is-income { color: #45c878; }
+.pp-metric-icon.is-spent { color: #ff6363; }
+.pp-metric-icon.is-bills { color: #4d8dff; }
+.pp-metric-icon.is-remaining { color: #e5b84b; }
+
+.pp-metric-label {
+  color: #9eacc5;
+  font-size: 12px;
+}
+
+.pp-metric strong {
+  max-width: 100%;
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.pp-pay-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 15px;
+}
+
+.pp-pay-actions > .btn {
+  min-width: 0;
+  min-height: 46px;
+  padding: 8px 9px;
+  border-radius: 15px;
+  font-size: 13px;
+  white-space: normal;
+}
+
+.pp-pay-menu {
+  right: 0;
+  top: 52px;
+  width: 210px;
+}
+
+.pp-expense-form {
+  margin: 0 0 15px;
+  border-radius: 18px;
+}
+
+.pp-expense-list {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pp-expense-row {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 82px;
+  padding: 10px 9px;
+  border: 1px solid rgba(164, 181, 209, .16);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #111927, #0d1420);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: visible;
+}
+
+.pp-expense-row.is-paid {
+  opacity: .58;
+}
+
+.pp-expense-avatar {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-expense-avatar.fixed {
+  color: #45c878;
+  background: linear-gradient(135deg, #224a38, #1d7d4a);
+}
+
+.pp-expense-avatar.variable {
+  color: #ff8a1c;
+  background: linear-gradient(135deg, #6a2f00, #d06600);
+}
+
+.pp-expense-avatar.optional {
+  color: #9f63ff;
+  background: linear-gradient(135deg, #44206e, #6d35b1);
+}
+
+.pp-expense-avatar.buffer {
+  color: #4da4ff;
+  background: linear-gradient(135deg, #173e68, #1b6ca8);
+}
+
+.pp-expense-avatar.other {
+  color: #9eacc5;
+  background: #1b2432;
+}
+
+.pp-expense-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pp-expense-name {
+  max-width: 100%;
+  font-size: 13px;
+  line-height: 1.22;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.pp-expense-category {
+  margin-top: 3px;
+  color: #9eacc5;
+  font-size: 10px;
+}
+
+.pp-expense-payment {
+  flex: 0 0 44px;
+  min-width: 0;
+}
+
+.pp-expense-payment span {
+  display: block;
+  margin-bottom: 5px;
+  color: #9eacc5;
+  font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pp-expense-payment i {
+  display: block;
+  width: 34px;
+  height: 4px;
+  border-radius: 999px;
+  background: #2d3543;
+}
+
+.pp-expense-payment i.is-paid {
+  background: #45c878;
+}
+
+.pp-expense-end {
+  position: relative;
+  flex: 0 0 62px;
+  width: 62px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.pp-expense-end strong {
+  width: 100%;
+  max-width: 62px;
+  font-size: 13px;
+  line-height: 1.15;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pp-expense-menu-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-size: 20px;
+}
+
+.pp-expense-menu {
+  right: 0;
+  top: 70px;
+  width: 205px;
+}
+
+.pp-add-expense-link {
+  margin: 15px auto 0;
+  font-size: 15px;
+}
+
+.pp-pay-card.is-collapsed .pp-pay-body {
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .pp-pay-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pp-metric {
+    min-height: 112px;
+  }
+
+  .pp-expense-row {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .pp-expense-avatar {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  .pp-expense-name {
+    font-size: 15px;
+  }
+
+  .pp-expense-category {
+    font-size: 12px;
+  }
+
+  .pp-expense-payment {
+    flex-basis: 64px;
+  }
+
+  .pp-expense-payment span {
+    font-size: 11px;
+  }
+
+  .pp-expense-payment i {
+    width: 48px;
+    height: 5px;
+  }
+
+  .pp-expense-end {
+    flex-basis: 78px;
+    width: 78px;
+  }
+
+  .pp-expense-end strong {
+    max-width: 78px;
+    font-size: 15px;
+  }
+}

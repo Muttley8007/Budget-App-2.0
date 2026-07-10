@@ -67,3 +67,9 @@
 ### Completed in v2.3.3-beta.1
 - [x] Fix Pay Card expense text overflow
 - [x] Constrain amount and action columns on mobile
+
+
+### Completed in v2.4.0-beta.1
+- [x] Clean Pay Cards UI refactor
+- [x] Remove dependency on accumulated legacy Pay Card layout rules
+- [x] Prevent expense content overflow by design
