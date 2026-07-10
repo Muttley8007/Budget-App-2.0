@@ -111,3 +111,12 @@
 - Modernised expense rows with category-coloured avatars.
 - Moved expense paid/delete controls into three-dot menus.
 - Added compact payment status indicators.
+
+
+## v2.3.1-beta.1
+### Changed
+- Reduced Pay Card summary tile sizes.
+- Reduced Pay Card heading, button and value font sizes.
+- Reduced expense row height and padding.
+- Reduced expense avatar, status and action sizes.
+- Matched Pay Card information density more closely to Bills.

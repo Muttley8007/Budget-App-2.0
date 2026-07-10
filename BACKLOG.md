@@ -52,3 +52,9 @@
 - [x] Context-sensitive footer Add button
 - [x] Modern expense rows
 - [x] Expense three-dot menus
+
+
+### Completed in v2.3.1-beta.1
+- [x] Compact Pay Card typography
+- [x] Compact Pay Card summary tiles
+- [x] Compact expense rows
