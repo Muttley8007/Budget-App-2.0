@@ -91,13 +91,13 @@
     <button class="mobile-nav-item" data-tab="bills" onclick="showTab('bills')">
       <span class="mobile-nav-icon">▤</span><span>Bills</span>
     </button>
-    <button class="mobile-nav-add" onclick="showTab('cards'); window.scrollTo({top:0,behavior:'smooth'})">+</button>
+    <button class="mobile-nav-add" onclick="contextualAdd()" title="Add">+</button>
     <button class="mobile-nav-item" data-tab="cards" onclick="showTab('cards')">
       <span class="mobile-nav-icon">▣</span><span>Pay Cards</span>
     </button>
   </nav>
 
-  <script src="app.js?v=223-beta1"></script>
+  <script src="app.js?v=230-beta1"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

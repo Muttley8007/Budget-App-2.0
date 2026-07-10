@@ -313,6 +313,61 @@ function showTab(tab) {
   if (tab === 'dashboard') drawMonthlyChart();
 }
 
+
+let openExpenseMenuId = null;
+
+function contextualAdd(){
+  if (currentTab === 'bills'){
+    showTab('bills');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const input = document.querySelector('#bills input[type="text"]');
+      if (input) input.focus();
+    }, 350);
+    return;
+  }
+
+  showTab('cards');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    const input = document.getElementById('payDate');
+    if (input) input.focus();
+  }, 350);
+}
+
+function daysUntilLabel(dateString){
+  if (!dateString) return 'No pay date';
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const target = new Date(dateString + 'T00:00:00');
+  const days = Math.round((target - today) / 86400000);
+
+  if (days === 0) return 'Payday today';
+  if (days === 1) return '1 day until payday';
+  if (days > 1) return `${days} days until payday`;
+  if (days === -1) return '1 day ago';
+  return `${Math.abs(days)} days ago`;
+}
+
+function toggleExpenseMenu(payId, expenseId){
+  const key = `${payId}:${expenseId}`;
+  openExpenseMenuId = openExpenseMenuId === key ? null : key;
+  render();
+}
+
+function expenseInitial(name){
+  return escapeHtml(String(name || '?').trim().charAt(0).toUpperCase() || '?');
+}
+
+function expenseCategoryClass(category){
+  const c = String(category || '').toLowerCase();
+  if (c === 'fixed') return 'fixed';
+  if (c === 'variable') return 'variable';
+  if (c === 'optional') return 'optional';
+  if (c === 'buffer') return 'buffer';
+  return 'other';
+}
+
 function renderSummary() {
   const activePays = data.pays.filter(p => !p.archived);
   const pay = activePays.reduce((s, p) => s + Number(p.pay || 0), 0);
@@ -1123,55 +1178,73 @@ function render() {
   box.innerHTML = activePays.map(p => {
     const t = totals(p);
     const s = stat(t.rem);
+    const expenses = p.expenses || [];
+    const paidCount = expenses.filter(e => e.paid).length;
+    const paymentProgress = expenses.length ? Math.round((paidCount / expenses.length) * 100) : 0;
 
     return `
-      <div class="pay-card ${p.collapsed ? 'collapsed' : ''}">
-        <div class="pay-stripe ${s[0] === 'g' ? 'ok' : s[0] === 'y' ? 'tight' : 'red'}"></div>
-        <div class="pay-content">
-          <div class="pay-head">
-            <div style="min-width:0;">
-              <div class="pay-date">${dateFmt(p.date)}</div>
-              <div class="pay-note">${escapeHtml(p.note || 'No notes')}</div>
+      <div class="pay-card premium ${p.collapsed ? 'collapsed' : ''}">
+        <div class="pay-content premium">
+          <div class="pay-head premium">
+            <div class="pay-title-block">
+              <div class="pay-date premium">${dateFmt(p.date)}</div>
+              <div class="pay-note premium">${escapeHtml(p.note || daysUntilLabel(p.date))}</div>
             </div>
+
             <div class="pay-head-right">
-              <div class="badge ${s[0] === 'g' ? 'ok' : s[0] === 'y' ? 'tight' : 'red'}">${s[1]}</div>
-              <button class="btn btn-secondary pay-toggle" onclick="toggleCollapse('${p.id}')" title="${p.collapsed ? 'Expand' : 'Collapse'}">
-                ${p.collapsed ? '＋' : '－'}
+              <button class="icon-btn" onclick="toggleCollapse('${p.id}')" title="${p.collapsed ? 'Expand' : 'Collapse'}">
+                ${p.collapsed ? '+' : '−'}
               </button>
             </div>
           </div>
 
-          <div class="money-grid">
-            <div class="money-box">
-              <div class="money-label">--> $</div>
-              <span class="money-value">${money(p.pay)}</span>
+          <div class="pay-progress-track" aria-label="${paymentProgress}% paid">
+            <div class="pay-progress-fill" style="width:${paymentProgress}%"></div>
+          </div>
+
+          <div class="pay-summary-grid">
+            <div class="pay-summary-tile">
+              <div class="pay-summary-icon income">$</div>
+              <div class="pay-summary-label">Income</div>
+              <div class="pay-summary-value">${money(p.pay)}</div>
             </div>
-            <div class="money-box">
-              <div class="money-label">$ --></div>
-              <span class="money-value">${money(t.exp)}</span>
+
+            <div class="pay-summary-tile">
+              <div class="pay-summary-icon spent">↓</div>
+              <div class="pay-summary-label">Spent</div>
+              <div class="pay-summary-value">${money(t.exp)}</div>
             </div>
-            <div class="money-box">
-              <div class="money-label">Remaining</div>
-              <span class="money-value">${money(t.rem)}</span>
+
+            <div class="pay-summary-tile">
+              <div class="pay-summary-icon bills">▤</div>
+              <div class="pay-summary-label">Bills</div>
+              <div class="pay-summary-value">${expenses.length}</div>
+            </div>
+
+            <div class="pay-summary-tile">
+              <div class="pay-summary-icon remaining">▣</div>
+              <div class="pay-summary-label">Remaining</div>
+              <div class="pay-summary-value">${money(t.rem)}</div>
             </div>
           </div>
 
-          <div class="card-actions">
-            <button class="btn btn-primary" onclick="addExp('${p.id}')">+ Expense</button>
-            <button class="btn btn-secondary" onclick="closePay('${p.id}')">Close</button>
+          <div class="pay-primary-actions">
+            <button class="btn btn-primary pay-add-expense" onclick="addExp('${p.id}')">＋ Add Expense</button>
+            <button class="btn btn-secondary pay-close-card" onclick="closePay('${p.id}')">▤ Close Pay Card</button>
+
             <div class="menu-wrap">
-              <button class="btn btn-secondary menu-btn" onclick="togglePayMenu('${p.id}')" title="More">⋯</button>
+              <button class="icon-btn pay-more-btn" onclick="togglePayMenu('${p.id}')" title="More">⋯</button>
               ${openMenuPayId === p.id ? `
-                <div class="menu-panel">
-                  <button class="btn btn-secondary" onclick="editPay('${p.id}')">✏ Edit</button>
-                  <button class="btn btn-danger" onclick="delPay('${p.id}')">✕ Delete</button>
+                <div class="menu-panel pay-modern-menu">
+                  <button class="btn btn-secondary" onclick="editPay('${p.id}')">✎ Edit Pay</button>
+                  <button class="btn btn-danger" onclick="delPay('${p.id}')">⌫ Delete Pay</button>
                 </div>
               ` : ''}
             </div>
           </div>
 
           ${p.showExpenseForm ? `
-            <div class="inline-expense-form">
+            <div class="inline-expense-form premium">
               ${data.templates.length ? `
                 <div class="inline-expense-template-row">
                   <select onchange="applyExpenseTemplate('${p.id}', this.value)">
@@ -1186,19 +1259,12 @@ function render() {
               ` : ''}
 
               <div class="inline-expense-grid">
-                <input
-                  type="text"
-                  placeholder="Expense name"
+                <input type="text" placeholder="Expense name"
                   value="${escapeHtml(p.newExpenseName || '')}"
-                  oninput="updateExpenseDraft('${p.id}','newExpenseName', this.value)"
-                >
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Amount"
+                  oninput="updateExpenseDraft('${p.id}','newExpenseName', this.value)">
+                <input type="number" step="0.01" placeholder="Amount"
                   value="${escapeHtml(p.newExpenseAmount || '')}"
-                  oninput="updateExpenseDraft('${p.id}','newExpenseAmount', this.value)"
-                >
+                  oninput="updateExpenseDraft('${p.id}','newExpenseAmount', this.value)">
                 <select onchange="updateExpenseDraft('${p.id}','newExpenseCat', this.value)">
                   <option value="Fixed" ${(p.newExpenseCat || 'Fixed') === 'Fixed' ? 'selected' : ''}>Fixed</option>
                   <option value="Variable" ${(p.newExpenseCat || '') === 'Variable' ? 'selected' : ''}>Variable</option>
@@ -1206,6 +1272,7 @@ function render() {
                   <option value="Buffer" ${(p.newExpenseCat || '') === 'Buffer' ? 'selected' : ''}>Buffer</option>
                 </select>
               </div>
+
               <div class="inline-expense-actions">
                 <button class="btn btn-primary" onclick="saveInlineExp('${p.id}')">Add Expense</button>
                 <button class="btn btn-secondary save-template-btn" onclick="saveExpenseTemplate('${p.id}')" title="Save template">💾</button>
@@ -1214,26 +1281,54 @@ function render() {
             </div>
           ` : ''}
 
-          <div class="expenses-wrap">
-            ${(p.expenses || []).length ? `
-              <div class="expense-list">
-                ${(p.expenses || []).map(e => `
-                  <div class="expense-row ${e.paid ? 'paid' : ''}">
-                    <div class="expense-left">
-                      <div class="expense-name" title="${escapeHtml(e.name)}">${escapeHtml(e.name)}</div>
-                      <div class="expense-cat">${escapeHtml(e.cat || '')}</div>
-                    </div>
+          <div class="expenses-wrap premium">
+            ${expenses.length ? `
+              <div class="expense-list premium">
+                ${expenses.map(e => {
+                  const menuKey = `${p.id}:${e.id}`;
+                  return `
+                    <div class="expense-row premium ${e.paid ? 'paid' : ''}">
+                      <div class="expense-avatar ${expenseCategoryClass(e.cat)}">
+                        ${expenseInitial(e.name)}
+                      </div>
 
-                    <div class="expense-right">
-                      <div class="expense-amount">${money(e.amount)}</div>
-                      <div class="expense-buttons">
-                        <button class="btn tick ${e.paid ? 'paid' : 'btn-secondary'}" onclick="togglePaid('${p.id}','${e.id}')">${e.paid ? '✓' : '□'}</button>
-                        <button class="btn btn-danger" onclick="delExp('${p.id}','${e.id}')">X</button>
+                      <div class="expense-main">
+                        <div class="expense-name premium">${escapeHtml(e.name)}</div>
+                        <div class="expense-cat premium">${escapeHtml(e.cat || '')}</div>
+                      </div>
+
+                      <div class="expense-status">
+                        <div class="expense-status-label">Payment</div>
+                        <div class="expense-status-bar ${e.paid ? 'paid' : ''}"></div>
+                      </div>
+
+                      <div class="expense-right premium">
+                        <div class="expense-amount premium">${money(e.amount)}</div>
+
+                        <button class="icon-btn expense-menu-trigger"
+                          onclick="toggleExpenseMenu('${p.id}','${e.id}')"
+                          title="Expense actions">⋮</button>
+
+                        ${openExpenseMenuId === menuKey ? `
+                          <div class="expense-action-menu">
+                            <button onclick="togglePaid('${p.id}','${e.id}')">
+                              <span>${e.paid ? '✓' : '○'}</span>
+                              ${e.paid ? 'Mark unpaid' : 'Mark paid'}
+                            </button>
+                            <button class="danger" onclick="delExp('${p.id}','${e.id}')">
+                              <span>⌫</span>Delete
+                            </button>
+                          </div>
+                        ` : ''}
                       </div>
                     </div>
-                  </div>
-                `).join('')}
+                  `;
+                }).join('')}
               </div>
+
+              <button class="period-add-bill pay-period-add" onclick="addExp('${p.id}')">
+                <span>⊕</span> Add Expense
+              </button>
             ` : '<div class="empty-state">No expenses yet</div>'}
           </div>
         </div>

@@ -98,3 +98,16 @@
 - Reduced bill-title font size.
 - Long bill names now wrap instead of truncating.
 - Rebalanced bill-row widths to give titles more space.
+
+## v2.3.0-beta.1
+### Added
+- Context-sensitive footer Add button.
+- Expense action menus.
+- Payment progress for each Pay Card.
+
+### Changed
+- Restyled Pay Cards to match the Bills design language.
+- Added four Pay Card summary tiles.
+- Modernised expense rows with category-coloured avatars.
+- Moved expense paid/delete controls into three-dot menus.
+- Added compact payment status indicators.

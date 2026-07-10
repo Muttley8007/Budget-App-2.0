@@ -46,3 +46,9 @@
 - [x] Match reference bill row proportions
 - [x] Add varied bill avatar colours
 - [x] Add duplicate action to bill menu
+
+### Completed in v2.3.0-beta.1
+- [x] Restyle Pay Cards to match Bills
+- [x] Context-sensitive footer Add button
+- [x] Modern expense rows
+- [x] Expense three-dot menus
