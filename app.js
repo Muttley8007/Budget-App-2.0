@@ -1,4 +1,4 @@
-const K = 'pay-budget-lite-v1';
+const K = 'bills-beta-pay-budget-lite-v2-beta';
 
 let data = JSON.parse(localStorage.getItem(K) || '{"pays":[],"templates":[]}');
 
@@ -1004,7 +1004,7 @@ function exportData() {
   const a = document.createElement('a');
   const date = new Date().toISOString().slice(0, 10);
   a.href = url;
-  a.download = `budget-backup-${date}.json`;
+  a.download = `bills-beta-budget-backup-${date}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
