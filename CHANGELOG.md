@@ -81,3 +81,14 @@
 - Added circular bill initials and more compact bill rows.
 - Added a mobile bottom navigation bar.
 - Restyled period cards, progress bars and action buttons.
+
+
+## v2.2.2-beta.1
+### Changed
+- Matched the Bills page more closely to the reference design.
+- Added four period summary tiles.
+- Increased card spacing, typography and button sizing.
+- Added varied bill avatar colours.
+- Added Duplicate to Next Period inside the bill action menu.
+- Added Add Bill link within each tracked period card.
+- Refined mobile bottom navigation sizing.

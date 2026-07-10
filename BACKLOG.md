@@ -38,3 +38,11 @@
 - [x] Move Planned/Paid into menu
 - [x] Add visual status cues
 - [x] Add mobile bottom navigation
+
+
+### Completed in v2.2.2-beta.1
+- [x] Add period summary tiles
+- [x] Match reference card spacing
+- [x] Match reference bill row proportions
+- [x] Add varied bill avatar colours
+- [x] Add duplicate action to bill menu

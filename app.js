@@ -944,20 +944,43 @@ function renderBillSection(title, type){
                       </div>
                     </div>
                   </div>
+
+                  <div class="bill-summary-grid">
+                    <div class="bill-summary-tile">
+                      <div class="bill-summary-icon green">▤</div>
+                      <div class="bill-summary-label">Total Bills</div>
+                      <div class="bill-summary-value">${periodBills.length}</div>
+                    </div>
+                    <div class="bill-summary-tile">
+                      <div class="bill-summary-icon blue">✓</div>
+                      <div class="bill-summary-label">Planned</div>
+                      <div class="bill-summary-value">${plannedCount}</div>
+                    </div>
+                    <div class="bill-summary-tile">
+                      <div class="bill-summary-icon red">!</div>
+                      <div class="bill-summary-label">Outstanding</div>
+                      <div class="bill-summary-value">${unpaidBills.length}</div>
+                    </div>
+                    <div class="bill-summary-tile">
+                      <div class="bill-summary-icon gold">$</div>
+                      <div class="bill-summary-label">Outstanding</div>
+                      <div class="bill-summary-value money">${money(outstanding)}</div>
+                    </div>
+                  </div>
                 ` : ''}
 
                 <div class="bill-list">
-                  ${periodBills.map(b => `
+                  ${periodBills.map((b, index) => `
                     <div class="bill-row modern ${b.paid ? 'paid' : ''}">
-                      <div class="bill-avatar">${escapeHtml((b.name || '?').trim().charAt(0).toUpperCase())}</div>
+                      <div class="bill-avatar avatar-${index % 4}">
+                        ${escapeHtml((b.name || '?').trim().charAt(0).toUpperCase())}
+                      </div>
 
                       <div class="bill-main">
                         <div class="bill-name">${escapeHtml(b.name)}</div>
                         <div class="bill-meta">
                           Due: ${billDateLabel(b.dueDate)}<br>
                           ${b.recurring ? 'Recurring' : 'One-off'}
-                          ${b.plannedDate ? `<br>Planned: ${new Date(b.plannedDate).toLocaleDateString('en-AU')}` : ''}
-                          ${b.paidDate ? `<br>Paid: ${new Date(b.paidDate).toLocaleDateString('en-AU')}` : ''}
                         </div>
                       </div>
 
@@ -988,6 +1011,11 @@ function renderBillSection(title, type){
                               </button>
                             ` : ''}
                             <button onclick="editBill('${b.id}')"><span>✎</span>Edit</button>
+                            ${tracked ? `
+                              <button onclick="duplicateBillPeriod('${type}','${key}')">
+                                <span>⧉</span>Duplicate to Next Period
+                              </button>
+                            ` : ''}
                             <button class="danger" onclick="deleteBill('${b.id}')"><span>⌫</span>Delete</button>
                           </div>
                         ` : ''}
@@ -995,6 +1023,12 @@ function renderBillSection(title, type){
                     </div>
                   `).join('')}
                 </div>
+
+                ${tracked ? `
+                  <button class="period-add-bill" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+                    <span>⊕</span> Add Bill
+                  </button>
+                ` : ''}
               </div>
             `;
           }).join('')}
