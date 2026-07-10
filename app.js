@@ -37,6 +37,8 @@ if (!data.billDraft) {
   };
 }
 
+if (!data.billPeriodCollapsed) data.billPeriodCollapsed = {};
+
 let currentTab = 'cards';
 
 function save() {
@@ -649,11 +651,15 @@ function billDateLabel(d){
 
 function billPeriodKey(bill){
   if (!bill.dueDate) return 'No date';
-
   const d = new Date(bill.dueDate + 'T00:00:00');
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
 
-  if (bill.type === 'Annual'){
-    return String(d.getFullYear());
+  if (bill.type === 'Annual') return String(year);
+
+  if (bill.type === 'Quarterly'){
+    const quarter = Math.floor((month - 1) / 3) + 1;
+    return `${year}-Q${quarter}`;
   }
 
   return bill.dueDate.slice(0, 7);
@@ -662,8 +668,11 @@ function billPeriodKey(bill){
 function billPeriodTitle(key, type){
   if (key === 'No date') return 'No due date';
 
-  if (type === 'Annual'){
-    return `${key} Annual Bills`;
+  if (type === 'Annual') return `${key} Annual Bills`;
+
+  if (type === 'Quarterly'){
+    const [year, quarter] = key.split('-');
+    return `${quarter} ${year}`;
   }
 
   const [year, month] = key.split('-');
@@ -671,6 +680,23 @@ function billPeriodTitle(key, type){
     month: 'long',
     year: 'numeric'
   });
+}
+
+function billPeriodCollapseKey(type, key){
+  return `${type}:${key}`;
+}
+
+function toggleBillPeriod(type, key){
+  if (!data.billPeriodCollapsed) data.billPeriodCollapsed = {};
+  const collapseKey = billPeriodCollapseKey(type, key);
+  data.billPeriodCollapsed[collapseKey] = !data.billPeriodCollapsed[collapseKey];
+  save();
+  render();
+}
+
+function isBillPeriodCollapsed(type, key){
+  if (!data.billPeriodCollapsed) data.billPeriodCollapsed = {};
+  return !!data.billPeriodCollapsed[billPeriodCollapseKey(type, key)];
 }
 
 function renderBillSection(title, type){
@@ -685,8 +711,8 @@ function renderBillSection(title, type){
     });
 
   const total = bills.reduce((s,b) => s + Number(b.amount || 0), 0);
-
   const groups = {};
+
   bills.forEach(b => {
     const key = billPeriodKey(b);
     if (!groups[key]) groups[key] = [];
@@ -713,13 +739,21 @@ function renderBillSection(title, type){
           ${periodKeys.map(key => {
             const periodBills = groups[key];
             const periodTotal = periodBills.reduce((s,b) => s + Number(b.amount || 0), 0);
+            const collapsed = isBillPeriodCollapsed(type, key);
 
             return `
-              <div class="bill-period-card">
+              <div class="bill-period-card ${collapsed ? 'collapsed' : ''}">
                 <div class="bill-period-header">
                   <div>
                     <h4 class="bill-period-title">${billPeriodTitle(key, type)}</h4>
                     <div class="bill-period-summary">${periodBills.length} bills • ${money(periodTotal)}</div>
+                  </div>
+                  <div class="bill-period-head-right">
+                    <button class="btn btn-secondary bill-period-toggle"
+                      onclick="toggleBillPeriod('${type}','${key}')"
+                      title="${collapsed ? 'Expand' : 'Collapse'}">
+                      ${collapsed ? '＋' : '－'}
+                    </button>
                   </div>
                 </div>
 
@@ -781,7 +815,9 @@ function renderBills(){
           <input type="text" placeholder="Bill name" value="${escapeHtml(d.name || '')}" oninput="updateBillDraft('name', this.value)">
           <input type="number" step="0.01" placeholder="Amount" value="${escapeHtml(d.amount || '')}" oninput="updateBillDraft('amount', this.value)">
           <select onchange="updateBillDraft('type', this.value)">
+            <option value="Fortnightly" ${d.type === 'Fortnightly' ? 'selected' : ''}>Fortnightly</option>
             <option value="Monthly" ${d.type === 'Monthly' ? 'selected' : ''}>Monthly</option>
+            <option value="Quarterly" ${d.type === 'Quarterly' ? 'selected' : ''}>Quarterly</option>
             <option value="Annual" ${d.type === 'Annual' ? 'selected' : ''}>Annual</option>
           </select>
           <input type="date" value="${escapeHtml(d.dueDate || '')}" oninput="updateBillDraft('dueDate', this.value)">
@@ -800,8 +836,10 @@ function renderBills(){
       </div>
 
       <div class="bill-section-grid">
-        ${renderBillSection('Annual Bills', 'Annual')}
+        ${renderBillSection('Fortnightly Bills', 'Fortnightly')}
         ${renderBillSection('Monthly Bills', 'Monthly')}
+        ${renderBillSection('Quarterly Bills', 'Quarterly')}
+        ${renderBillSection('Annual Bills', 'Annual')}
       </div>
     </div>
   `;
@@ -966,7 +1004,7 @@ function exportData() {
   const a = document.createElement('a');
   const date = new Date().toISOString().slice(0, 10);
   a.href = url;
-  a.download = `beta-budget-backup-${date}.json`;
+  a.download = `budget-backup-${date}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();

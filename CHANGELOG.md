@@ -21,3 +21,11 @@
 - Grouped Monthly Bills into month cards.
 - Grouped Annual Bills into year cards.
 - Added per-period bill count and total.
+
+## v2.0.0-beta.3
+- Added collapsible bill period cards.
+- Added Fortnightly bill frequency.
+- Added Quarterly bill frequency.
+- Added Fortnightly Bills and Quarterly Bills sections.
+- Fortnightly bills are grouped by month.
+- Quarterly bills are grouped by quarter.

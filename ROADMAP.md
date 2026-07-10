@@ -23,3 +23,8 @@
 ### Milestone 3
 - Transfer bill to Pay Card
 - Planned status
+
+### Milestone 1.6
+- Collapsible period cards
+- Fortnightly frequency
+- Quarterly frequency
